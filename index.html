@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>ddreplay-js</title>
+	<script type="text/javascript" src="pako.min.js"></script>
+	<script type="text/javascript" src="replay-parser.js"></script>
+	<script type="text/javascript">
+		function parseFile() {
+			const fileInput = document.getElementById('input');
+			const selectedFile = fileInput.files[0];
+
+			const reader = new FileReader();
+			reader.onload = async function (e) {
+				const blob = new Blob([new Uint8Array(e.target.result)]);
+				const parsedEvents = parseLocalReplayIntoEvents(await blob.arrayBuffer());
+
+				const outputDiv = document.getElementById('output');
+				outputDiv.innerHTML = JSON.stringify(parsedEvents);
+			};
+			reader.readAsArrayBuffer(selectedFile);
+		}
+	</script>
+</head>
+
+<body>
+	<form method="POST" onsubmit="parseFile(); return false;">
+		<input type="file" id="input" />
+		<input type="submit" value="Submit" />
+	</form>
+
+	<div id="output"></div>
+</body>
+
+</html>
