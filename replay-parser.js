@@ -361,3 +361,27 @@ function parseLocalReplayIntoEvents(localReplayBuffer) {
 	const rawReplayEventsBuffer = pako.inflate(compressedReplayEventsBuffer).buffer;
 	return parseReplayEvents(rawReplayEventsBuffer);
 }
+
+function extractCompressedReplayEventsBufferFromLeaderboardReplay(leaderboardReplayBuffer) {
+	const stream = streamOf(leaderboardReplayBuffer);
+
+	// Skip format identifier
+	stream.seek(7);
+
+	// Skip username
+	const usernameLength = stream.readInt16();
+	stream.seek(usernameLength);
+
+	// Skip unknown buffer
+	const unknownBufferLength = stream.readInt16();
+	stream.seek(unknownBufferLength);
+
+	const offset = stream.getOffset();
+	return leaderboardReplayBuffer.slice(offset);
+}
+
+function parseLeaderboardReplayIntoEvents(leaderboardReplayBuffer) {
+	const compressedReplayEventsBuffer = extractCompressedReplayEventsBufferFromLeaderboardReplay(leaderboardReplayBuffer);
+	const rawReplayEventsBuffer = pako.inflate(compressedReplayEventsBuffer).buffer;
+	return parseReplayEvents(rawReplayEventsBuffer);
+}
