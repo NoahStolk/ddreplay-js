@@ -334,8 +334,8 @@ function parseReplayEvents(uncompressedReplayEventsBuffer) {
 	}
 }
 
-function extractCompressedReplayEventsBuffer(data) {
-	const stream = streamOf(data);
+function extractCompressedReplayEventsBufferFromLocalReplay(localReplayBuffer) {
+	const stream = streamOf(localReplayBuffer);
 
 	// Skip first parts of the local replay header
 	stream.seek(50);
@@ -353,11 +353,11 @@ function extractCompressedReplayEventsBuffer(data) {
 
 	const compressedReplayEventsBufferLength = stream.readInt32();
 	const offset = stream.getOffset();
-	return data.slice(offset, offset + compressedReplayEventsBufferLength);
+	return localReplayBuffer.slice(offset, offset + compressedReplayEventsBufferLength);
 }
 
 function parseLocalReplayIntoEvents(localReplayBuffer) {
-	const compressedReplayEventsBuffer = extractCompressedReplayEventsBuffer(localReplayBuffer);
+	const compressedReplayEventsBuffer = extractCompressedReplayEventsBufferFromLocalReplay(localReplayBuffer);
 	const rawReplayEventsBuffer = pako.inflate(compressedReplayEventsBuffer).buffer;
 	return parseReplayEvents(rawReplayEventsBuffer);
 }
