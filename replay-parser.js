@@ -1,5 +1,7 @@
 'use strict';
 
+let currentEntityId = 1;
+
 function streamOf(data) {
 	const dataView = new DataView(data);
 	let i = 0;
@@ -195,10 +197,10 @@ function parseInputsEvent(stream, firstTick) {
 	return event;
 }
 
-function parseSpawnEvent(stream, entityId) {
+function parseSpawnEvent(stream) {
 	const event = {};
 	event.type = 'spawn';
-	event.entityId = entityId++;
+	event.entityId = currentEntityId++;
 
 	const entityType = stream.readUInt8();
 	switch (entityType) {
@@ -298,10 +300,10 @@ function parseThornSpawnEvent(stream, event) {
 	return event;
 }
 
-function parseEvent(stream, firstTick, entityId) {
+function parseEvent(stream, firstTick) {
 	const eventType = stream.readUInt8();
 	switch (eventType) {
-		case 0x00: return parseSpawnEvent(stream, entityId);
+		case 0x00: return parseSpawnEvent(stream);
 		case 0x01: return parseEntityPositionEvent(stream);
 		case 0x02: return parseEntityOrientationEvent(stream);
 		case 0x04: return parseEntityTargetEvent(stream);
@@ -317,12 +319,12 @@ function parseEvent(stream, firstTick, entityId) {
 function parseReplayEvents(uncompressedReplayEventsBuffer) {
 	const events = [];
 	let firstTick = true;
-	let entityId = 1;
+	currentEntityId = 1;
 
 	const stream = streamOf(uncompressedReplayEventsBuffer);
 
 	while (true) {
-		const event = parseEvent(stream, firstTick, entityId);
+		const event = parseEvent(stream, firstTick);
 		events.push(event);
 
 		if (event.type == 'inputs') {
