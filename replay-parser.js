@@ -274,7 +274,7 @@ function parsePedeSpawnEvent(stream, event, entityType) {
 function parseSpiderSpawnEvent(stream, event, entityType) {
 	event.entityType = entityType;
 	event.a = stream.readInt32();
-	event.b = stream.readFloat32Vec3();
+	event.position = stream.readFloat32Vec3();
 	return event;
 }
 
